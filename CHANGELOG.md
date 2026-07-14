@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.0:
+- Re-enable install game feature of plugin
+
 ## 0.5.2
 - Fixed library not being properly updated as result of missing game title
 - Fixed game uninstall not working
