@@ -5,10 +5,9 @@ import sys
 import webbrowser
 
 from galaxy.api.plugin import Plugin, create_and_run_plugin
-from galaxy.api.consts import Feature, Platform, LicenseType, LocalGameState, OSCompatibility
+from galaxy.api.consts import Platform, LicenseType, LocalGameState, OSCompatibility
 from galaxy.api.types import Authentication, Game, LicenseInfo, LocalGame
 from time import time
-from typing import List
 
 from version import __version__
 from client import AmazonGamesClient
@@ -214,6 +213,11 @@ class AmazonGamesPlugin(Plugin):
             if self._local_games_db and self._local_games_cache is not None:
                 self._update_local_games()
 
+    async def install_game(self, game_id):
+        self.logger.info(f'Starting game install ({game_id})')
+        await self._client.astart_client()
+        AmazonGamesPlugin._scheme_command('install', game_id)
+
     async def launch_game(self, game_id):
         AmazonGamesPlugin._scheme_command('play', game_id)
 
@@ -232,11 +236,6 @@ class AmazonGamesPlugin(Plugin):
 
     async def get_os_compatibility(self, game_id, context):
         return OSCompatibility.Windows
-
-    @property
-    def features(self) -> List[Feature]:
-        # As we can't remove the `install_game` method, we just skip the `Feature` from the features list
-        return [x for x in list(self._features) if x not in [Feature.InstallGame]]
 
 def main():
     create_and_run_plugin(AmazonGamesPlugin, sys.argv)

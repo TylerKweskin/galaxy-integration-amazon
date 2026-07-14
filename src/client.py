@@ -53,6 +53,16 @@ class AmazonGamesClient:
         return False
 
     @property
+    def ui_ready(self):
+        active_ui_instances = []
+
+        for proc in process_iter():
+            if proc.binary_path and 'Amazon Games UI.exe' in proc.binary_path:
+                active_ui_instances.append(proc)
+        # Amazon app is fully operational when 4 processes of the .exe are active.
+        return len(active_ui_instances) == 4
+
+    @property
     def exec_path(self):
         if not self.install_location:
             return ''
@@ -106,6 +116,18 @@ class AmazonGamesClient:
     def start_client(self):
         if not self.is_running:
             AmazonGamesClient._exec(self.exec_path)
+
+    async def astart_client(self):
+        if self.is_running and self.ui_ready:
+            return True
+
+        self.start_client()
+
+        while(True):
+            if self.is_running and self.ui_ready:
+                break
+
+            await asyncio.sleep(0.5)
 
     def stop_client(self):
         if self.is_running:
