@@ -1,0 +1,2 @@
+pipenv install --dev
+pipenv run [build | deploy | dist [--a=<zip_archive.zip>]]
